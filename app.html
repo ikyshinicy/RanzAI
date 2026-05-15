@@ -465,36 +465,30 @@ Separate them with "---" between JSON and plain text. Start with the JSON block 
     errorMsg.style.display = 'none';
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: { type: 'base64', media_type: imageMime, data: imageBase64 }
-              },
-              {
-                type: 'text',
-                text: buildPrompt()
-              }
-            ]
-          }]
-        })
-      });
-
+      const response = await fetch(
+        'https://cavouyzyasnuygkuwizy.supabase.co/functions/v1/generate-prompt',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'https://cavouyzyasnuygkuwizy.supabase.co/rest/v1/'
+          },
+          body: JSON.stringify({
+            imageBase64,
+            mimeType: imageMime,
+            prompt: buildPrompt()
+          })
+        }
+      );
+      
       const data = await response.json();
-
+      
       if (!response.ok) {
-        throw new Error(data.error?.message || 'API error ' + response.status);
+        throw new Error(data.error || 'Generate gagal');
       }
-
-      rawResult = data.content?.map(c => c.text || '').join('') || '';
-
+      
+      rawResult = data.result || '';
+      
       displayResult(rawResult);
 
     } catch (err) {
