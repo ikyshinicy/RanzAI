@@ -1,0 +1,164 @@
+<!-- 
+  INSTRUKSI:
+  Tambahkan HTML ini sebelum tag </body> di app.html
+  Tambahkan CSS ini ke dalam <style> atau style.css
+-->
+
+<!-- ═══════════════════════════════════════════
+     HTML — taruh sebelum </body>
+═══════════════════════════════════════════ -->
+
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup()">
+  <div class="popup-box" onclick="event.stopPropagation()">
+
+    <div class="popup-icon">⚡</div>
+
+    <h2 class="popup-title">Credit Kamu Habis</h2>
+    <p class="popup-desc">
+      Kamu sudah pakai 1 generate gratis.<br>
+      Top up kredit untuk lanjut generate.
+    </p>
+
+    <div class="popup-price-info">
+      Rp 1.000 <span>=</span> 1 generate
+    </div>
+
+    <a href="topup.html" class="popup-btn-primary">
+      ⚡ Top Up Sekarang
+    </a>
+
+    <button class="popup-btn-secondary" onclick="closePopup()">
+      Nanti saja
+    </button>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     CSS — taruh di dalam <style> atau style.css
+═══════════════════════════════════════════ -->
+
+<style>
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+.popup-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.popup-box {
+  background: #141417;
+  border: 1px solid #2a2a30;
+  border-radius: 16px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  position: relative;
+  transform: translateY(16px);
+  transition: transform .25s ease;
+}
+
+.popup-overlay.show .popup-box {
+  transform: translateY(0);
+}
+
+/* Top accent line */
+.popup-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 24px; right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e8ff47, transparent);
+}
+
+.popup-icon {
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+
+.popup-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: #f0f0f0;
+  margin-bottom: 10px;
+}
+
+.popup-desc {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #6b6b7a;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.popup-price-info {
+  background: rgba(232,255,71,.06);
+  border: 1px solid rgba(232,255,71,.2);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #e8ff47;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.popup-price-info span {
+  color: #6b6b7a;
+  margin: 0 6px;
+}
+
+.popup-btn-primary {
+  display: block;
+  width: 100%;
+  background: #e8ff47;
+  color: #0d0d0f;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background .2s;
+  margin-bottom: 10px;
+}
+
+.popup-btn-primary:hover { background: #d4eb3a; }
+
+.popup-btn-secondary {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #2a2a30;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #6b6b7a;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.popup-btn-secondary:hover {
+  border-color: #6b6b7a;
+  color: #f0f0f0;
+}
+</style>
