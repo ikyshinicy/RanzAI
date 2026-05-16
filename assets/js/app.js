@@ -7,8 +7,55 @@ let currentTargetAI = 'chatgpt';
 let currentVisualStyle = 'normal';
 
 let rawResult = '';
+function getSession() {
+  const raw = localStorage.getItem('ranzai_session');
+  return raw ? JSON.parse(raw) : null;
+}
 
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_6eixKKot9VleMm2KVD4o7w_C58lRv6r';
+async function getUserCredits() {
+  const session = getSession();
+
+  if (!session?.user?.id) return 0;
+
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/user_credits?user_id=eq.${session.user.id}&select=credits`,
+    {
+      headers: {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${session.access_token}`
+      }
+    }
+  );
+
+  const data = await res.json();
+
+  if (!data.length) return 0;
+
+  return data[0].credits || 0;
+}
+
+c function decreaseCredits() {
+  const session = getSession();
+
+  const credits = await getUserCredits();
+
+  await fetch(
+    `${SUPABASE_URL}/rest/v1/user_credits?user_id=eq.${session.user.id}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({
+        credits: credits - 1
+      })
+    }
+  );
+}
+
+const SUPABASE_URL = 'https://cavouyzyasnuygkuwizy.supabase.co';
 const GENERATE_ENDPOINT = 'https://cavouyzyasnuygkuwizy.supabase.co/functions/v1/generate-prompt';
 
 const fileInput = document.getElementById('fileInput');
@@ -113,6 +160,11 @@ function buildPrompt() {
 
 async function generatePrompt() {
   if (!imageBase64) return;
+  const credits = await getUserCredits();
+
+if (credits <= 0) {
+  return showError('Credit habis. Silakan upgrade.');
+}
 
   generateBtn.disabled = true;
   generateBtn.classList.add('loading');
@@ -140,6 +192,7 @@ async function generatePrompt() {
     if (!response.ok) throw new Error(data.error || 'Generate gagal');
 
     rawResult = data.result || '';
+    await decreaseCredits();
     displayResult(rawResult);
   } catch (err) {
     showError('Error: ' + err.message);
