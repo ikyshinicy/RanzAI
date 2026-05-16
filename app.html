@@ -530,15 +530,18 @@
 
   function getVisualStyleInstruction() {
     const styleMap = {
+      normal: 'Visual style: normal accurate analysis. Do not force a heavy style. Preserve the original look, layout, colors, subject, and visual intent from the uploaded image. Improve clarity only.',
       cinematic: 'Visual style: cinematic, premium film still, dramatic composition, atmospheric lighting, strong depth, emotional mood, high-end color grading, realistic visual storytelling.',
       poster_ads: 'Visual style: premium advertising poster, bold composition, strong product/subject focus, clean graphic layout, commercial lighting, editorial polish, high-impact campaign aesthetic.',
       anime: 'Visual style: high-end anime illustration, expressive but clean character rendering, cinematic anime lighting, detailed background, polished Japanese visual direction, not generic.',
       realistic: 'Visual style: photorealistic, natural anatomy, believable lighting, real camera feel, sharp detail, realistic textures, professional photography quality.',
       luxury: 'Visual style: luxury editorial, elegant composition, premium magazine aesthetic, refined lighting, minimal but expensive feel, high-fashion visual language.',
-      streetwear: 'Visual style: urban streetwear, bold youth culture, editorial street photography, graphic attitude, modern outfit detail, raw but polished creative direction.'
+      streetwear: 'Visual style: urban streetwear, bold youth culture, editorial street photography, graphic attitude, modern outfit detail, raw but polished creative direction.',
+      techwear: 'Visual style: futuristic techwear, sleek functional fashion, dark premium urban mood, tactical details, clean cyber-editorial lighting, modern Japanese street aesthetic.',
+      cyberpunk: 'Visual style: cyberpunk, neon city atmosphere, futuristic dystopian mood, strong contrast, glowing lights, tech elements, rain reflections, cinematic sci-fi energy.'
     };
-
-    return styleMap[currentVisualStyle] || styleMap.cinematic;
+  
+    return styleMap[currentVisualStyle] || styleMap.normal;
   }
 
   function buildPrompt() {
