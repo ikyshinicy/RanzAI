@@ -88,49 +88,7 @@
   letter-spacing: 2px;
 }
 
-/* ═══ STAT STRIP ═══ */
-.stat-strip {
-  position: relative;
-  z-index: 2;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 24px 80px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
 
-.stat-item {
-  background: var(--surface);
-  padding: 28px 32px;
-  text-align: center;
-  position: relative;
-}
-
-.stat-item:first-child { border-radius: 15px 0 0 15px; }
-.stat-item:last-child  { border-radius: 0 15px 15px 0; }
-
-.stat-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--accent);
-  letter-spacing: -1px;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
 
 /* ═══ MOCKUP ═══ */
 .mockup-section {
@@ -439,15 +397,7 @@ nav {
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 760px) {
-  .stat-strip {
-    grid-template-columns: repeat(3, 1fr);
-    margin: 0 16px;
-  }
-
-  .stat-num { font-size: 24px; }
-  .stat-item { padding: 20px 12px; }
-
-  .steps { grid-template-columns: 1fr; }
+.steps { grid-template-columns: 1fr; }
   .step:not(:last-child) { border-bottom: 1px solid var(--border); }
 
   .features { grid-template-columns: 1fr; }
@@ -462,9 +412,6 @@ nav {
 
 @media (max-width: 520px) {
   .hero h1 { letter-spacing: -2px; }
-  .stat-strip { grid-template-columns: 1fr; gap: 0; }
-  .stat-item:first-child { border-radius: 15px 15px 0 0; }
-  .stat-item:last-child  { border-radius: 0 0 15px 15px; }
 }
 </style>
 </head>
@@ -507,21 +454,7 @@ nav {
   <div class="scroll-hint" data-i18n="scroll">Scroll</div>
 </div>
 
-<!-- ═══ STAT STRIP ═══ -->
-<div class="stat-strip">
-  <div class="stat-item">
-    <div class="stat-num">10+</div>
-    <div class="stat-label">AI Targets</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">3</div>
-    <div class="stat-label">Output Format</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">Rp 1k</div>
-    <div class="stat-label">Per Generate</div>
-  </div>
-</div>
+
 
 <!-- ═══ MOCKUP ═══ -->
 <div class="mockup-section">
