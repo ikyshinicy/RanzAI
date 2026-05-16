@@ -786,8 +786,54 @@
 
   function closeQRPopup(e) {
     if (e && e.target !== document.getElementById('qrPopupOverlay')) return
+    stopPolling()
     document.getElementById('qrPopupOverlay').classList.remove('show')
     document.body.style.overflow = ''
+  }
+
+  // ── Polling status pembayaran (setiap 5 detik) ──────────────────────
+  let pollingInterval = null
+
+  function startPolling(orderId) {
+    stopPolling()
+    pollingInterval = setInterval(() => checkPaymentStatus(orderId), 5000)
+  }
+
+  function stopPolling() {
+    if (pollingInterval) {
+      clearInterval(pollingInterval)
+      pollingInterval = null
+    }
+  }
+
+  async function checkPaymentStatus(orderId) {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/transactions?order_id=eq.${orderId}&select=status`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      )
+      const data = await res.json()
+      const status = data[0]?.status
+
+      if (status === 'success') {
+        stopPolling()
+        document.getElementById('qrPopupOverlay').classList.remove('show')
+        document.body.style.overflow = ''
+        await loadBalance()
+        const msgEl = document.getElementById('successMsg')
+        msgEl.textContent = '✓ Pembayaran berhasil! Kredit sudah masuk.'
+        msgEl.style.display = 'block'
+        setTimeout(() => { msgEl.style.display = 'none' }, 5000)
+
+      } else if (status === 'failed') {
+        stopPolling()
+        document.getElementById('qrPopupOverlay').classList.remove('show')
+        document.body.style.overflow = ''
+        const msgEl = document.getElementById('errorMsg')
+        msgEl.textContent = '⚠ Pembayaran gagal atau kedaluwarsa.'
+        msgEl.style.display = 'block'
+      }
+    } catch {}
   }
 
   // ── Process payment ─────────────────────────────────────────────────
@@ -805,8 +851,8 @@
     btn.classList.add('loading')
     btn.querySelector('.btn-text').textContent = 'Memproses...'
     document.getElementById('errorMsg').style.display = 'none'
+    document.getElementById('successMsg').style.display = 'none'
 
-    // Show popup immediately with loading spinner
     openQRPopup()
 
     try {
@@ -830,15 +876,17 @@
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Pembayaran gagal.')
 
-      // Populate QR popup with response data
       populateQRPopup(data)
 
+      // ✅ Mulai polling setiap 5 detik cek status pembayaran
+      startPolling(data.order_id)
+
     } catch (err) {
-      // Close popup and show error below button
+      stopPolling()
       document.getElementById('qrPopupOverlay').classList.remove('show')
       document.body.style.overflow = ''
       const msgEl = document.getElementById('errorMsg')
-      msgEl.textContent = '⚠ ' + err.message + ' (Edge Function belum aktif — segera hadir!)'
+      msgEl.textContent = '⚠ ' + err.message
       msgEl.style.display = 'block'
     } finally {
       btn.disabled = false
