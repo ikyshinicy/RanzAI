@@ -785,6 +785,7 @@
   }
 
   function populateQRPopup(data) {
+    console.log('QR DATA:', JSON.stringify(data))
     // Generate QR image — pakai qr_code_url, fallback ke Google Charts dari qr_string
     let qrSrc = data.qr_code_url || ''
     if (!qrSrc && data.qr_string) {
