@@ -509,8 +509,14 @@
 
   function setVisualStyle(style, el) {
     currentVisualStyle = style;
-    const buttons = el.closest('.option-group').querySelectorAll('.fmt-btn');
+  
+    console.log('VISUAL STYLE:', currentVisualStyle);
+  
+    const group = el.closest('.option-group');
+    const buttons = group.querySelectorAll('.fmt-btn');
+  
     buttons.forEach(b => b.classList.remove('active'));
+  
     el.classList.add('active');
   }
 
