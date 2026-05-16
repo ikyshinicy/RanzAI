@@ -1008,10 +1008,17 @@ section {
 ========================================================= */
 
 body.auth-page {
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+}
+
+body.auth-page .top-controls {
+  position: fixed;
+  top: 18px;
+  right: 18px;
 }
 
 .auth-card {
