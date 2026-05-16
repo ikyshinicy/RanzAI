@@ -6,6 +6,467 @@
 <title>RanzAI — Image Prompt Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<style>
+
+/* ═══ HERO ENHANCEMENTS ═══ */
+.hero {
+  padding: 140px 20px 100px;
+  gap: 0;
+}
+
+.hero-badge {
+  background: rgba(232,255,71,.08);
+  border: 1px solid rgba(232,255,71,.22);
+  color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-size: clamp(48px, 10vw, 96px);
+  letter-spacing: -4px;
+  line-height: 0.95;
+  margin-bottom: 28px;
+}
+
+.hero h1 em {
+  color: var(--accent);
+  font-style: normal;
+  position: relative;
+  display: inline-block;
+}
+
+/* Underline glow under "Prompt." */
+.hero h1 em::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  opacity: 0.5;
+  filter: blur(2px);
+}
+
+.hero-sub {
+  max-width: 480px;
+  margin: 0 auto 44px;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.hero-actions {
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.btn-primary {
+  padding: 15px 30px;
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  border-radius: 10px;
+}
+
+.btn-ghost {
+  padding: 15px 24px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+.hero-note {
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+/* ═══ STAT STRIP ═══ */
+.stat-strip {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.stat-item {
+  background: var(--surface);
+  padding: 28px 32px;
+  text-align: center;
+  position: relative;
+}
+
+.stat-item:first-child { border-radius: 15px 0 0 15px; }
+.stat-item:last-child  { border-radius: 0 15px 15px 0; }
+
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ═══ MOCKUP ═══ */
+.mockup-section {
+  position: relative;
+  z-index: 2;
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 24px 100px;
+}
+
+.mockup-wrap {
+  border-radius: 16px;
+  box-shadow: 0 40px 100px rgba(0,0,0,.5), 0 0 0 1px var(--border);
+  overflow: hidden;
+  transition: transform .4s ease, box-shadow .4s ease;
+}
+
+.mockup-wrap:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 60px 120px rgba(0,0,0,.55), 0 0 0 1px rgba(232,255,71,.15), 0 0 60px rgba(232,255,71,.04);
+}
+
+.mockup-body {
+  padding: 28px 24px;
+}
+
+.mock-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  border: 1px solid rgba(232,255,71,.25);
+  background: rgba(232,255,71,.06);
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.mock-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+
+.mock-title span { color: var(--accent); }
+
+/* ═══ SECTION IMPROVEMENTS ═══ */
+section {
+  padding: 90px 24px;
+}
+
+.section-label {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.section-title {
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1.05;
+  margin-bottom: 52px;
+}
+
+/* ═══ STEPS ═══ */
+.steps {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.step {
+  padding: 36px 28px;
+  border-radius: 0;
+  position: relative;
+  transition: background .2s;
+}
+
+.step:hover { background: var(--surface-2); }
+
+.step::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background .2s;
+}
+
+.step:hover::before { background: var(--accent); }
+
+.step-num {
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+  display: block;
+  opacity: .6;
+}
+
+.step-icon {
+  font-size: 26px;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.step h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.step p {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+/* ═══ FEATURES ═══ */
+.features {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.feature {
+  padding: 30px 26px;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 24px; right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+.feature:hover::after { opacity: .4; }
+
+.feature-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  font-size: 20px;
+}
+
+.feature h3 {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: -.3px;
+}
+
+.feature p { font-size: 11px; line-height: 1.8; }
+
+/* ═══ PRICING ═══ */
+.pricing-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.price-card {
+  padding: 28px 24px;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.price-card:not(.featured):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.3);
+}
+
+.price-card.featured {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(232,255,71,.08);
+  position: relative;
+}
+
+.price-card.featured::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 24px; right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.price-name { font-size: 18px; margin-bottom: 6px; }
+
+.price-amount {
+  font-size: 28px;
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.price-desc { font-size: 11px; margin-bottom: 20px; }
+
+.price-features { gap: 8px; margin-bottom: 24px; }
+
+.price-features li {
+  font-size: 11px;
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+}
+
+.price-features li::before {
+  content: '✓';
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.price-btn {
+  padding: 11px;
+  font-size: 11px;
+  border-radius: 8px;
+  letter-spacing: 1.5px;
+}
+
+/* ═══ CTA SECTION ═══ */
+.cta-section {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 100px 24px;
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(232,255,71,.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.cta-section h2 {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  letter-spacing: -2.5px;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+
+.cta-section p {
+  font-size: 13px;
+  margin-bottom: 36px;
+}
+
+/* ═══ NAV IMPROVEMENTS ═══ */
+nav {
+  padding: 16px 32px;
+  padding-right: 200px;
+}
+
+.nav-logo {
+  font-size: 12px;
+  letter-spacing: 4px;
+}
+
+.nav-links { gap: 20px; }
+
+.nav-links a { font-size: 10px; letter-spacing: 1.5px; }
+
+.nav-cta {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+/* ═══ FOOTER ═══ */
+.site-footer {
+  padding: 24px 32px;
+}
+
+.footer-logo { font-size: 11px; letter-spacing: 4px; }
+.footer-copy { font-size: 10px; }
+.footer-links a { font-size: 10px; }
+.footer-links { gap: 20px; }
+
+/* ═══ DIVIDER ═══ */
+.divider {
+  max-width: 900px;
+  margin: 0 auto;
+  opacity: .6;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 760px) {
+  .stat-strip {
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0 16px;
+  }
+
+  .stat-num { font-size: 24px; }
+  .stat-item { padding: 20px 12px; }
+
+  .steps { grid-template-columns: 1fr; }
+  .step:not(:last-child) { border-bottom: 1px solid var(--border); }
+
+  .features { grid-template-columns: 1fr; }
+
+  .pricing-grid { grid-template-columns: 1fr; }
+  .price-card.featured { transform: none; }
+
+  .mockup-section { padding: 0 16px 80px; }
+
+  nav { padding: 16px 20px; padding-right: 20px; }
+}
+
+@media (max-width: 520px) {
+  .hero h1 { letter-spacing: -2px; }
+  .stat-strip { grid-template-columns: 1fr; gap: 0; }
+  .stat-item:first-child { border-radius: 15px 15px 0 0; }
+  .stat-item:last-child  { border-radius: 0 0 15px 15px; }
+}
+</style>
 </head>
 <body>
 
@@ -15,6 +476,7 @@
   <button class="control-btn" data-theme-toggle>☾ Dark</button>
 </div>
 
+<!-- ═══ NAV ═══ -->
 <nav>
   <a href="#" class="nav-logo">✦ RanzAI</a>
   <div class="nav-links">
@@ -26,9 +488,16 @@
   </div>
 </nav>
 
+<!-- ═══ HERO ═══ -->
 <div class="hero">
-  <div class="hero-badge" data-i18n="hero_badge">Powered by GPT-4.1 Mini</div>
-  <h1><span data-i18n="hero_title_prefix">Image →</span><br><em data-i18n="hero_title_accent">Prompt.</em></h1>
+  <div class="hero-badge" data-i18n="hero_badge">
+    <span style="width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;flex-shrink:0;"></span>
+    Powered by GPT-4.1 Mini
+  </div>
+  <h1>
+    <span data-i18n="hero_title_prefix">Image →</span><br>
+    <em data-i18n="hero_title_accent">Prompt.</em>
+  </h1>
   <p class="hero-sub" data-i18n="hero_sub">Upload gambar apapun. Dapatkan prompt AI yang detail, siap pakai untuk ChatGPT, Gemini, Midjourney, DALL·E, Flux, SDXL, dan lainnya.</p>
   <div class="hero-actions">
     <a href="app.html" class="btn-primary" data-i18n="hero_cta">✦ Coba Gratis</a>
@@ -38,10 +507,29 @@
   <div class="scroll-hint" data-i18n="scroll">Scroll</div>
 </div>
 
-<section style="padding-top:0;padding-bottom:100px;">
+<!-- ═══ STAT STRIP ═══ -->
+<div class="stat-strip">
+  <div class="stat-item">
+    <div class="stat-num">10+</div>
+    <div class="stat-label">AI Targets</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">3</div>
+    <div class="stat-label">Output Format</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">Rp 1k</div>
+    <div class="stat-label">Per Generate</div>
+  </div>
+</div>
+
+<!-- ═══ MOCKUP ═══ -->
+<div class="mockup-section">
   <div class="mockup-wrap">
     <div class="mockup-bar">
-      <div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div>
+      <div class="mockup-dot"></div>
+      <div class="mockup-dot"></div>
+      <div class="mockup-dot"></div>
       <div class="mockup-url" data-i18n="mock_url">ranzai.app</div>
     </div>
     <div class="mockup-body">
@@ -63,103 +551,123 @@
       <div class="mock-btn" data-i18n="mock_btn">✦ Generate Prompt</div>
     </div>
   </div>
-</section>
+</div>
 
 <div class="divider"></div>
 
-<section id="how">
+<!-- ═══ HOW IT WORKS ═══ -->
+<section id="how" style="max-width:900px;margin:0 auto;">
   <div class="section-label" data-i18n="how_label">// Cara kerja</div>
   <div class="section-title" data-i18n="how_title">Tiga langkah.<br>Satu menit.</div>
   <div class="steps">
-    <div class="step"><span class="step-num">01 —</span><span class="step-icon">🖼️</span><h3 data-i18n="step1_title">Upload Gambar</h3><p data-i18n="step1_text">Drag & drop atau klik untuk pilih gambar. Mendukung JPG, PNG, dan WEBP hingga 10MB.</p></div>
-    <div class="step"><span class="step-num">02 —</span><span class="step-icon">⚡</span><h3 data-i18n="step2_title">Generate Prompt</h3><p data-i18n="step2_text">GPT-4.1 Mini menganalisis gambar secara mendalam — subjek, style, lighting, mood, dan elemen visual lainnya.</p></div>
-    <div class="step"><span class="step-num">03 —</span><span class="step-icon">📋</span><h3 data-i18n="step3_title">Copy & Pakai</h3><p data-i18n="step3_text">Salin prompt dalam format JSON structured atau plain text. Langsung pakai di AI generator favoritmu.</p></div>
+    <div class="step">
+      <span class="step-num">01 —</span>
+      <span class="step-icon">🖼️</span>
+      <h3 data-i18n="step1_title">Upload Gambar</h3>
+      <p data-i18n="step1_text">Drag & drop atau klik untuk pilih gambar. Mendukung JPG, PNG, dan WEBP hingga 10MB.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">02 —</span>
+      <span class="step-icon">⚡</span>
+      <h3 data-i18n="step2_title">Generate Prompt</h3>
+      <p data-i18n="step2_text">GPT-4.1 Mini menganalisis gambar secara mendalam — subjek, style, lighting, mood, dan elemen visual lainnya.</p>
+    </div>
+    <div class="step">
+      <span class="step-num">03 —</span>
+      <span class="step-icon">📋</span>
+      <h3 data-i18n="step3_title">Copy & Pakai</h3>
+      <p data-i18n="step3_text">Salin prompt dalam format JSON structured atau plain text. Langsung pakai di AI generator favoritmu.</p>
+    </div>
   </div>
 </section>
 
 <div class="divider"></div>
 
-<section id="features">
+<!-- ═══ FEATURES ═══ -->
+<section id="features" style="max-width:900px;margin:0 auto;">
   <div class="section-label">// Fitur</div>
-
-  <div class="section-title">
-    Semua yang kamu<br>butuhkan.
-  </div>
-
+  <div class="section-title">Semua yang kamu<br>butuhkan.</div>
   <div class="features">
-
     <div class="feature">
       <div class="feature-icon">🎯</div>
       <h3>Ultra Accurate Reconstruction</h3>
-      <p>
-        Generate prompt dengan detail tinggi agar hasil AI semirip mungkin dengan gambar asli.
-      </p>
+      <p>Generate prompt dengan detail tinggi agar hasil AI semirip mungkin dengan gambar asli.</p>
     </div>
-
     <div class="feature">
       <div class="feature-icon">🧠</div>
       <h3>Multi AI Optimized</h3>
-      <p>
-        Prompt otomatis dioptimalkan untuk ChatGPT, Midjourney, Flux, SDXL, Gemini, dan lainnya.
-      </p>
+      <p>Prompt otomatis dioptimalkan untuk ChatGPT, Midjourney, Flux, SDXL, Gemini, dan lainnya.</p>
     </div>
-
     <div class="feature">
       <div class="feature-icon">✨</div>
       <h3>Creative Style Transformation</h3>
-      <p>
-        Ubah gambar menjadi cinematic, anime, poster ads, luxury, cyberpunk, dan style lainnya.
-      </p>
+      <p>Ubah gambar menjadi cinematic, anime, poster ads, luxury, cyberpunk, dan style lainnya.</p>
     </div>
-
     <div class="feature">
       <div class="feature-icon">⚡</div>
       <h3>Fast & Ready To Use</h3>
-      <p>
-        Hasil prompt langsung siap copy-paste untuk workflow AI image generation.
-      </p>
+      <p>Hasil prompt langsung siap copy-paste untuk workflow AI image generation.</p>
     </div>
-
   </div>
 </section>
 
 <div class="divider"></div>
 
-<section id="pricing">
+<!-- ═══ PRICING ═══ -->
+<section id="pricing" style="max-width:900px;margin:0 auto;">
   <div class="section-label" data-i18n="pricing_label">// Harga</div>
   <div class="section-title" data-i18n="pricing_title">Credit system.<br>Tanpa bulanan.</div>
   <div class="pricing-grid">
+
     <div class="price-card">
       <div class="price-name" data-i18n="free_name">Free</div>
       <div class="price-amount">Rp 0</div>
       <div class="price-desc" data-i18n="free_desc">Untuk coba-coba dan penggunaan ringan.</div>
-      <ul class="price-features"><li data-i18n="free_f1">Generate terbatas</li><li data-i18n="free_f2">JSON & Plain Text output</li><li data-i18n="free_f3">Format gambar standar</li></ul>
+      <ul class="price-features">
+        <li data-i18n="free_f1">Generate terbatas</li>
+        <li data-i18n="free_f2">JSON & Plain Text output</li>
+        <li data-i18n="free_f3">Format gambar standar</li>
+      </ul>
       <a href="app.html" class="price-btn price-btn-ghost" data-i18n="start_free">Mulai Gratis</a>
     </div>
+
     <div class="price-card featured">
       <div class="price-tag" data-i18n="credit_tag">Recommended</div>
       <div class="price-name" data-i18n="credit_name">Credits</div>
       <div class="price-amount">Rp 1k <span>/ generate</span></div>
       <div class="price-desc" data-i18n="credit_desc">Bayar sesuai pakai. Cocok untuk kreator yang ingin explore.</div>
-      <ul class="price-features"><li data-i18n="credit_f1">1 credit = 1 generate</li><li data-i18n="credit_f2">Tidak wajib langganan bulanan</li><li data-i18n="credit_f3">Cocok untuk style exploration</li><li data-i18n="credit_f4">Fleksibel untuk user casual</li></ul>
+      <ul class="price-features">
+        <li data-i18n="credit_f1">1 credit = 1 generate</li>
+        <li data-i18n="credit_f2">Tidak wajib langganan bulanan</li>
+        <li data-i18n="credit_f3">Cocok untuk style exploration</li>
+        <li data-i18n="credit_f4">Fleksibel untuk user casual</li>
+      </ul>
       <a href="app.html" class="price-btn price-btn-primary" data-i18n="start_now">Mulai Sekarang</a>
     </div>
+
     <div class="price-card">
       <div class="price-name" data-i18n="teams_name">Teams</div>
       <div class="price-amount">Custom</div>
       <div class="price-desc" data-i18n="teams_desc">Untuk tim kreatif dan agensi.</div>
-      <ul class="price-features"><li data-i18n="teams_f1">Paket credit tim</li><li data-i18n="teams_f2">Shared usage</li><li data-i18n="teams_f3">Priority support</li></ul>
+      <ul class="price-features">
+        <li data-i18n="teams_f1">Paket credit tim</li>
+        <li data-i18n="teams_f2">Shared usage</li>
+        <li data-i18n="teams_f3">Priority support</li>
+      </ul>
       <a href="app.html" class="price-btn price-btn-ghost" data-i18n="contact">Hubungi Kami</a>
     </div>
+
   </div>
 </section>
 
+<!-- ═══ CTA ═══ -->
 <div class="cta-section">
   <h2 data-i18n="cta_title">Mulai generate<br>sekarang.</h2>
   <p data-i18n="cta_text">Upload gambar pertamamu. Gratis dicoba, langsung jalan.</p>
   <a href="app.html" class="btn-primary" data-i18n="cta_btn">✦ Buka App →</a>
 </div>
 
+<!-- ═══ FOOTER ═══ -->
 <footer class="site-footer">
   <div class="footer-logo">✦ RanzAI</div>
   <div class="footer-links">
