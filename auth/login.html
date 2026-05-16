@@ -3,60 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Login — RanzAI</title>
-
+<title>RanzAI — Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="../assets/css/auth.css">
 </head>
-
-<body class="app-page">
-
-<div class="top-controls">
-  <button class="control-btn" data-lang-btn="id">ID</button>
-  <button class="control-btn" data-lang-btn="en">EN</button>
-  <button class="control-btn" data-theme-toggle>☾ Dark</button>
+<body>
+<div class="top-controls"><button class="control-btn" data-theme-toggle>☾ Dark</button></div>
+<div class="auth-card">
+  <div class="auth-top"><span class="logo-mark">✦ RanzAI</span><a href="../index.html" class="auth-back">← Kembali</a></div>
+  <h1 class="auth-title">Masuk <span>Akun</span></h1>
+  <p class="auth-subtitle">Lanjut generate · kelola credit · simpan workflow</p>
+  <button class="btn-social" onclick="loginWithGoogle()"><span style="font-size:18px">G</span> Masuk dengan Google</button>
+  <div class="or-divider"><span>atau</span></div>
+  <div class="field"><label>Email</label><input type="email" id="emailInput" placeholder="kamu@email.com" autocomplete="email"></div>
+  <div class="field"><label>Password</label><input type="password" id="passwordInput" placeholder="Password kamu" autocomplete="current-password"></div>
+  <button class="btn-submit" id="loginBtn" onclick="loginWithEmail()"><div class="spinner"></div><span class="btn-text">✦ Login</span></button>
+  <div class="error-msg" id="errorMsg"></div><div class="success-msg" id="successMsg"></div>
+  <div class="free-badge"><span class="free-badge-icon">⚡</span><div class="free-badge-text"><strong>RanzAI Prompt Engine</strong> Masuk untuk lanjut generate dan kelola penggunaan.</div></div>
+  <div class="card-footer">Belum punya akun? <a href="register.html">Daftar Gratis →</a></div>
 </div>
-
-<div class="container">
-
-<header class="app-header">
-  <div class="badge">✦ RanzAI</div>
-  <h1>Login</h1>
-  <p class="subtitle">Masuk ke akun RanzAI</p>
-</header>
-
-<div class="result-box" style="display:block;padding:24px;">
-
-  <div class="option-group">
-    <div class="option-label">Email</div>
-    <input id="email" type="email" class="auth-input" placeholder="email@email.com">
-  </div>
-
-  <div class="option-group" style="margin-top:16px;">
-    <div class="option-label">Password</div>
-    <input id="password" type="password" class="auth-input" placeholder="••••••••">
-  </div>
-
-  <button class="btn-generate" style="margin-top:20px;" onclick="loginUser()">
-    Login
-  </button>
-
-  <div id="authMessage" class="subtitle" style="margin-top:14px;"></div>
-
-</div>
-
-<footer class="app-footer">
-  Belum punya akun?
-  <a href="register.html">Register</a>
-</footer>
-
-</div>
-
-<script src="../assets/js/ui.js"></script>
 <script src="../assets/js/auth.js"></script>
-
+<script>
+async function loginWithEmail() {
+  const email = document.getElementById('emailInput').value.trim();
+  const password = document.getElementById('passwordInput').value;
+  if (!email || !email.includes('@')) return showError('Email tidak valid.');
+  if (!password) return showError('Password wajib diisi.');
+  setLoading('loginBtn', true, '✦ Login');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, { method:'POST', headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON}, body: JSON.stringify({ email, password }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Login gagal.');
+    saveSession({ session: data, user: data.user });
+    showSuccess('✓ Login berhasil. Mengalihkan...');
+    setTimeout(goToApp, 900);
+  } catch(err) { showError('⚠ ' + err.message); }
+  finally { setLoading('loginBtn', false, '✦ Login'); }
+}
+document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') loginWithEmail(); });
+</script>
 </body>
 </html>

@@ -3,60 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Register — RanzAI</title>
-
+<title>RanzAI — Daftar</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="../assets/css/auth.css">
 </head>
-
-<body class="app-page">
-
-<div class="top-controls">
-  <button class="control-btn" data-lang-btn="id">ID</button>
-  <button class="control-btn" data-lang-btn="en">EN</button>
-  <button class="control-btn" data-theme-toggle>☾ Dark</button>
+<body>
+<div class="top-controls"><button class="control-btn" data-theme-toggle>☾ Dark</button></div>
+<div class="auth-card">
+  <div class="auth-top"><span class="logo-mark">✦ RanzAI</span><a href="../index.html" class="auth-back">← Kembali</a></div>
+  <h1 class="auth-title">Daftar <span>Gratis</span></h1>
+  <p class="auth-subtitle">Buat akun · mulai generate · upgrade kapanpun</p>
+  <button class="btn-social" onclick="registerWithGoogle()"><span style="font-size:18px">G</span> Daftar dengan Google</button>
+  <div class="or-divider"><span>atau</span></div>
+  <div class="field"><label>Nama</label><input type="text" id="nameInput" placeholder="Nama kamu" autocomplete="name"></div>
+  <div class="field"><label>Email</label><input type="email" id="emailInput" placeholder="kamu@email.com" autocomplete="email"></div>
+  <div class="field"><label>Password</label><input type="password" id="passwordInput" placeholder="Min. 8 karakter" autocomplete="new-password" oninput="checkStrength(this.value)"><div class="strength-bar"><div class="strength-seg" id="seg1"></div><div class="strength-seg" id="seg2"></div><div class="strength-seg" id="seg3"></div><div class="strength-seg" id="seg4"></div></div><div class="strength-label" id="strengthLabel"></div></div>
+  <div class="terms"><input type="checkbox" id="termsCheck"><label for="termsCheck">Saya setuju dengan <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a> RanzAI.</label></div>
+  <button class="btn-submit" id="registerBtn" onclick="registerWithEmail()"><div class="spinner"></div><span class="btn-text">✦ Buat Akun</span></button>
+  <div class="error-msg" id="errorMsg"></div><div class="success-msg" id="successMsg"></div>
+  <div class="free-badge"><span class="free-badge-icon">🎁</span><div class="free-badge-text"><strong>Free Plan — Langsung aktif</strong> 5 generate/hari gratis. Upgrade kapanpun.</div></div>
+  <div class="card-footer">Sudah punya akun? <a href="login.html">Masuk →</a></div>
 </div>
-
-<div class="container">
-
-<header class="app-header">
-  <div class="badge">✦ RanzAI</div>
-  <h1>Register</h1>
-  <p class="subtitle">Buat akun baru RanzAI</p>
-</header>
-
-<div class="result-box" style="display:block;padding:24px;">
-
-  <div class="option-group">
-    <div class="option-label">Email</div>
-    <input id="email" type="email" class="auth-input" placeholder="email@email.com">
-  </div>
-
-  <div class="option-group" style="margin-top:16px;">
-    <div class="option-label">Password</div>
-    <input id="password" type="password" class="auth-input" placeholder="••••••••">
-  </div>
-
-  <button class="btn-generate" style="margin-top:20px;" onclick="registerUser()">
-    Register
-  </button>
-
-  <div id="authMessage" class="subtitle" style="margin-top:14px;"></div>
-
-</div>
-
-<footer class="app-footer">
-  Sudah punya akun?
-  <a href="login.html">Login</a>
-</footer>
-
-</div>
-
-<script src="../assets/js/ui.js"></script>
 <script src="../assets/js/auth.js"></script>
-
+<script>
+function checkStrength(val) {
+  const segs = [1,2,3,4].map(i => document.getElementById('seg'+i));
+  const label = document.getElementById('strengthLabel');
+  segs.forEach(s => s.className = 'strength-seg');
+  if (!val) { label.textContent = ''; return; }
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  if (score === 1) { segs[0].classList.add('weak'); label.textContent = 'Lemah'; label.style.color = '#ff4d4d'; }
+  else if (score === 2) { segs[0].classList.add('medium'); segs[1].classList.add('medium'); label.textContent = 'Cukup'; label.style.color = 'var(--accent)'; }
+  else if (score === 3) { segs[0].classList.add('strong'); segs[1].classList.add('strong'); segs[2].classList.add('strong'); label.textContent = 'Kuat'; label.style.color = 'var(--success)'; }
+  else if (score === 4) { segs.forEach(s => s.classList.add('strong')); label.textContent = 'Sangat Kuat'; label.style.color = 'var(--success)'; }
+}
+async function registerWithEmail() {
+  const name = document.getElementById('nameInput').value.trim();
+  const email = document.getElementById('emailInput').value.trim();
+  const password = document.getElementById('passwordInput').value;
+  const terms = document.getElementById('termsCheck').checked;
+  if (!name) return showError('Nama wajib diisi.');
+  if (!email || !email.includes('@')) return showError('Email tidak valid.');
+  if (password.length < 8) return showError('Password minimal 8 karakter.');
+  if (!terms) return showError('Setujui syarat & ketentuan dulu.');
+  setLoading('registerBtn', true, '✦ Buat Akun');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, { method:'POST', headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON}, body: JSON.stringify({ email, password, data:{ full_name:name } }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Pendaftaran gagal.');
+    if (data.session) { saveSession(data); showSuccess('✓ Akun berhasil dibuat. Mengalihkan...'); setTimeout(goToApp, 1000); }
+    else showSuccess('✓ Akun berhasil dibuat.<br>Cek email untuk verifikasi, lalu login.');
+  } catch(err) { showError('⚠ ' + err.message); }
+  finally { setLoading('registerBtn', false, '✦ Buat Akun'); }
+}
+document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') registerWithEmail(); });
+</script>
 </body>
 </html>
