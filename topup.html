@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RanzAI — Top Up Kredit</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #141417;
+    --border: #2a2a30;
+    --accent: #e8ff47;
+    --text: #f0f0f0;
+    --muted: #6b6b7a;
+    --radius: 12px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .top-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+  }
+
+  .logo-mark {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    border: 1px solid rgba(232,255,71,.3);
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .back-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: color .2s;
+  }
+
+  .back-btn:hover { color: var(--accent); }
+
+  /* Title */
+  .page-title {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .page-title h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .page-title h1 span { color: var(--accent); }
+
+  .page-title p {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* Credit balance */
+  .balance-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .balance-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .balance-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .balance-value span {
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* Amount input */
+  .amount-section { margin-bottom: 24px; }
+
+  .amount-input-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color .2s;
+    margin-bottom: 12px;
+  }
+
+  .amount-input-wrap:focus-within { border-color: var(--accent); }
+
+  .currency-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .amount-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    width: 100%;
+  }
+
+  .amount-input::placeholder { color: var(--border); }
+
+  .credit-preview {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .credit-preview strong { color: var(--accent); }
+
+  /* Quick amount buttons */
+  .quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .quick-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .quick-btn:hover, .quick-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(232,255,71,.06);
+  }
+
+  .quick-btn .amount { font-weight: 700; font-size: 12px; color: var(--text); }
+  .quick-btn.active .amount { color: var(--accent); }
+  .quick-btn .credits { font-size: 10px; }
+
+  /* Payment method */
+  .payment-section { margin-bottom: 24px; }
+
+  .payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .payment-option {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .payment-option:hover, .payment-option.active {
+    border-color: var(--accent);
+    background: rgba(232,255,71,.04);
+  }
+
+  .payment-option input[type="radio"] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .payment-icon { font-size: 22px; flex-shrink: 0; }
+
+  .payment-info { flex: 1; }
+
+  .payment-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .payment-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .payment-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    background: rgba(232,255,71,.1);
+    color: var(--accent);
+    border: 1px solid rgba(232,255,71,.2);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  /* Summary */
+  .summary-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .summary-row:last-child {
+    margin-bottom: 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .summary-row:last-child span:last-child { color: var(--accent); }
+
+  /* Pay button */
+  .btn-pay {
+    width: 100%;
+    background: var(--accent);
+    color: #0d0d0f;
+    border: none;
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all .2s;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-pay:hover { background: #d4eb3a; transform: translateY(-1px); }
+  .btn-pay:disabled { background: var(--border); color: var(--muted); transform: none; cursor: not-allowed; }
+
+  .btn-pay .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(0,0,0,.3);
+    border-top-color: #0d0d0f;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    display: none;
+  }
+
+  .btn-pay.loading .spinner { display: block; }
+  .btn-pay.loading .btn-text { opacity: .6; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Note */
+  .note {
+    margin-top: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  /* Error / Success */
+  .msg {
+    display: none;
+    margin-top: 14px;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    text-align: center;
+  }
+
+  .msg.error { background: rgba(255,77,77,.08); border: 1px solid rgba(255,77,77,.3); color: #ff8080; }
+  .msg.success { background: rgba(77,255,145,.08); border: 1px solid rgba(77,255,145,.3); color: #4dff91; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <nav class="top-nav">
+    <a href="index.html" class="logo-mark">✦ RanzAI</a>
+    <a href="app.html" class="back-btn">← Kembali</a>
+  </nav>
+
+  <div class="page-title">
+    <h1>Top Up <span>Kredit</span></h1>
+    <p>Rp 1.000 = 1 generate · bayar sesuai kebutuhan</p>
+  </div>
+
+  <!-- Saldo saat ini -->
+  <div class="balance-card">
+    <span class="balance-label">KREDIT KAMU SAAT INI</span>
+    <div class="balance-value" id="currentBalance">
+      — <span>credits</span>
+    </div>
+  </div>
+
+  <!-- Input nominal -->
+  <div class="amount-section">
+    <div class="section-label">Masukkan Nominal</div>
+    <div class="amount-input-wrap">
+      <span class="currency-label">Rp</span>
+      <input
+        type="number"
+        class="amount-input"
+        id="amountInput"
+        placeholder="0"
+        min="1000"
+        step="1000"
+        oninput="updatePreview()"
+      >
+    </div>
+    <div class="credit-preview" id="creditPreview">
+      Masukkan nominal untuk lihat kredit yang didapat
+    </div>
+  </div>
+
+  <!-- Quick amount -->
+  <div class="section-label">Pilih Cepat</div>
+  <div class="quick-amounts">
+    <button class="quick-btn" onclick="setAmount(5000)">
+      <div class="amount">5k</div>
+      <div class="credits">5 credits</div>
+    </button>
+    <button class="quick-btn" onclick="setAmount(10000)">
+      <div class="amount">10k</div>
+      <div class="credits">10 credits</div>
+    </button>
+    <button class="quick-btn" onclick="setAmount(25000)">
+      <div class="amount">25k</div>
+      <div class="credits">25 credits</div>
+    </button>
+    <button class="quick-btn" onclick="setAmount(50000)">
+      <div class="amount">50k</div>
+      <div class="credits">50 credits</div>
+    </button>
+  </div>
+
+  <!-- Payment method -->
+  <div class="payment-section">
+    <div class="section-label">Metode Pembayaran</div>
+    <div class="payment-options">
+
+      <label class="payment-option active" id="opt-qris">
+        <input type="radio" name="payment" value="qris" checked onchange="selectPayment(this)">
+        <span class="payment-icon">📱</span>
+        <div class="payment-info">
+          <div class="payment-name">QRIS</div>
+          <div class="payment-desc">GoPay, OVO, Dana, ShopeePay, semua bank</div>
+        </div>
+        <span class="payment-badge">POPULER</span>
+      </label>
+
+      <label class="payment-option" id="opt-transfer">
+        <input type="radio" name="payment" value="bank_transfer" onchange="selectPayment(this)">
+        <span class="payment-icon">🏦</span>
+        <div class="payment-info">
+          <div class="payment-name">Transfer Bank</div>
+          <div class="payment-desc">BCA, Mandiri, BNI, BRI</div>
+        </div>
+      </label>
+
+      <label class="payment-option" id="opt-gopay">
+        <input type="radio" name="payment" value="gopay" onchange="selectPayment(this)">
+        <span class="payment-icon">💚</span>
+        <div class="payment-info">
+          <div class="payment-name">GoPay</div>
+          <div class="payment-desc">Bayar langsung via GoPay</div>
+        </div>
+      </label>
+
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-box">
+    <div class="summary-row">
+      <span>Nominal top up</span>
+      <span id="summaryAmount">Rp —</span>
+    </div>
+    <div class="summary-row">
+      <span>Kredit didapat</span>
+      <span id="summaryCredits">— credits</span>
+    </div>
+    <div class="summary-row">
+      <span>Total bayar</span>
+      <span id="summaryTotal">Rp —</span>
+    </div>
+  </div>
+
+  <!-- Pay button -->
+  <button class="btn-pay" id="payBtn" disabled onclick="processPayment()">
+    <div class="spinner"></div>
+    <span class="btn-text">Bayar Sekarang</span>
+  </button>
+
+  <p class="note">
+    Pembayaran diproses via Midtrans · Aman & terenkripsi<br>
+    Kredit otomatis masuk setelah pembayaran berhasil
+  </p>
+
+  <div class="msg error" id="errorMsg"></div>
+  <div class="msg success" id="successMsg"></div>
+
+</div>
+
+<script>
+  const SUPABASE_URL  = 'https://cavouyzyasnuygkuwizy.supabase.co'
+  const SUPABASE_KEY  = 'GANTI_DENGAN_ANON_KEY_KAMU'
+
+  let selectedAmount  = 0
+  let selectedPayment = 'qris'
+
+  // ── Load balance ────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', async () => {
+    const session = getSession()
+    if (!session) {
+      window.location.href = 'auth/login.html'
+      return
+    }
+    await loadBalance()
+  })
+
+  function getSession() {
+    const raw = localStorage.getItem('ranzai_session')
+    return raw ? JSON.parse(raw) : null
+  }
+
+  async function loadBalance() {
+    const session = getSession()
+    if (!session?.user?.id) return
+
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/user_credits?user_id=eq.${session.user.id}&select=paid_credits`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${session.access_token}` } }
+      )
+      const data = await res.json()
+      const credits = data[0]?.paid_credits || 0
+      document.getElementById('currentBalance').innerHTML =
+        `${credits} <span>credits</span>`
+    } catch {}
+  }
+
+  // ── Amount ──────────────────────────────────────────────────────────
+  function setAmount(val) {
+    selectedAmount = val
+    document.getElementById('amountInput').value = val
+    updatePreview()
+    document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'))
+    event.currentTarget.classList.add('active')
+  }
+
+  function updatePreview() {
+    const val = parseInt(document.getElementById('amountInput').value) || 0
+    selectedAmount = val
+
+    // Reset quick btn highlight kalau manual input
+    if (![5000,10000,25000,50000].includes(val)) {
+      document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'))
+    }
+
+    const credits = Math.floor(val / 1000)
+
+    if (val < 1000) {
+      document.getElementById('creditPreview').innerHTML = 'Minimal top up Rp 1.000'
+      document.getElementById('summaryAmount').textContent  = 'Rp —'
+      document.getElementById('summaryCredits').textContent = '— credits'
+      document.getElementById('summaryTotal').textContent   = 'Rp —'
+      document.getElementById('payBtn').disabled = true
+      return
+    }
+
+    document.getElementById('creditPreview').innerHTML =
+      `Kamu akan dapat <strong>${credits} credits</strong>`
+    document.getElementById('summaryAmount').textContent  = `Rp ${val.toLocaleString('id-ID')}`
+    document.getElementById('summaryCredits').textContent = `${credits} credits`
+    document.getElementById('summaryTotal').textContent   = `Rp ${val.toLocaleString('id-ID')}`
+    document.getElementById('payBtn').disabled = false
+  }
+
+  // ── Payment method ──────────────────────────────────────────────────
+  function selectPayment(radio) {
+    selectedPayment = radio.value
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('active'))
+    radio.closest('.payment-option').classList.add('active')
+  }
+
+  // ── Process payment ─────────────────────────────────────────────────
+  async function processPayment() {
+    if (selectedAmount < 1000) return
+
+    const session = getSession()
+    if (!session?.user?.id) {
+      window.location.href = 'auth/login.html'
+      return
+    }
+
+    const btn = document.getElementById('payBtn')
+    btn.disabled = true
+    btn.classList.add('loading')
+    btn.querySelector('.btn-text').textContent = 'Memproses...'
+    document.getElementById('errorMsg').style.display = 'none'
+
+    try {
+      // TODO: Integrasi Midtrans — panggil Edge Function create-payment
+      // Sementara ini placeholder
+      const res = await fetch(
+        `${SUPABASE_URL}/functions/v1/create-payment`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            amount: selectedAmount,
+            payment_type: selectedPayment,
+            user_id: session.user.id
+          })
+        }
+      )
+
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error || 'Pembayaran gagal.')
+
+      // Redirect ke Midtrans payment page
+      if (data.payment_url) {
+        window.location.href = data.payment_url
+      }
+
+    } catch (err) {
+      const msgEl = document.getElementById('errorMsg')
+      msgEl.textContent = '⚠ ' + err.message + ' (Edge Function belum aktif — segera hadir!)'
+      msgEl.style.display = 'block'
+    } finally {
+      btn.disabled = false
+      btn.classList.remove('loading')
+      btn.querySelector('.btn-text').textContent = 'Bayar Sekarang'
+    }
+  }
+</script>
+</body>
+</html>
