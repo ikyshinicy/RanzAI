@@ -16,3 +16,23 @@ window.RanzAI_STYLES = {
 window.getVisualStyleInstruction = function(visualStyle) {
   return window.RanzAI_STYLES[visualStyle] || window.RanzAI_STYLES.normal;
 };
+.auth-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-family: 'Space Mono', monospace;
+  outline: none;
+  transition: border-color .2s, background .2s;
+}
+
+.auth-input:focus {
+  border-color: var(--accent);
+}
+
+.auth-input::placeholder {
+  color: var(--muted);
+}
