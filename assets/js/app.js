@@ -7,18 +7,24 @@ let currentTargetAI = 'chatgpt';
 let currentVisualStyle = 'normal';
 
 let rawResult = '';
+
+const SUPABASE_URL = 'https://cavouyzyasnuygkuwizy.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_6eixKKot9VleMm2KVD4o7w_C58lRv6r';
+const GENERATE_ENDPOINT = 'https://cavouyzyasnuygkuwizy.supabase.co/functions/v1/generate-prompt';
+
+// ── Session ──────────────────────────────────────────────────────────
 function getSession() {
   const raw = localStorage.getItem('ranzai_session');
   return raw ? JSON.parse(raw) : null;
 }
 
+// ── Get user credits ─────────────────────────────────────────────────
 async function getUserCredits() {
   const session = getSession();
-
-  if (!session?.user?.id) return 0;
+  if (!session?.user?.id) return { free_used: 0, paid_credits: 0 };
 
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/user_credits?user_id=eq.${session.user.id}&select=credits`,
+    `${SUPABASE_URL}/rest/v1/user_credits?user_id=eq.${session.user.id}&select=free_used,paid_credits`,
     {
       headers: {
         apikey: SUPABASE_PUBLISHABLE_KEY,
@@ -28,16 +34,23 @@ async function getUserCredits() {
   );
 
   const data = await res.json();
-
-  if (!data.length) return 0;
-
-  return data[0].credits || 0;
+  if (!data.length) return { free_used: 0, paid_credits: 0 };
+  return {
+    free_used:    data[0].free_used    || 0,
+    paid_credits: data[0].paid_credits || 0
+  };
 }
 
-async function decreaseCredits() {
+// ── Decrease credits setelah generate ────────────────────────────────
+async function decreaseCredits(useFree) {
   const session = getSession();
+  if (!session?.user?.id) return;
 
   const credits = await getUserCredits();
+
+  const body = useFree
+    ? { free_used: credits.free_used + 1 }
+    : { paid_credits: credits.paid_credits - 1 };
 
   await fetch(
     `${SUPABASE_URL}/rest/v1/user_credits?user_id=eq.${session.user.id}`,
@@ -48,27 +61,24 @@ async function decreaseCredits() {
         apikey: SUPABASE_PUBLISHABLE_KEY,
         Authorization: `Bearer ${session.access_token}`
       },
-      body: JSON.stringify({
-        credits: credits - 1
-      })
+      body: JSON.stringify(body)
     }
   );
 }
 
-const SUPABASE_URL = 'https://cavouyzyasnuygkuwizy.supabase.co';
-const GENERATE_ENDPOINT = 'https://cavouyzyasnuygkuwizy.supabase.co/functions/v1/generate-prompt';
-
-const fileInput = document.getElementById('fileInput');
-const uploadZone = document.getElementById('uploadZone');
-const previewWrap = document.getElementById('previewWrap');
-const previewImg = document.getElementById('previewImg');
-const generateBtn = document.getElementById('generateBtn');
-const resultBox = document.getElementById('resultBox');
+// ── DOM Elements ─────────────────────────────────────────────────────
+const fileInput     = document.getElementById('fileInput');
+const uploadZone    = document.getElementById('uploadZone');
+const previewWrap   = document.getElementById('previewWrap');
+const previewImg    = document.getElementById('previewImg');
+const generateBtn   = document.getElementById('generateBtn');
+const resultBox     = document.getElementById('resultBox');
 const resultContent = document.getElementById('resultContent');
-const errorMsg = document.getElementById('errorMsg');
-const removeBtn = document.getElementById('removeBtn');
-const copyBtn = document.getElementById('copyBtn');
+const errorMsg      = document.getElementById('errorMsg');
+const removeBtn     = document.getElementById('removeBtn');
+const copyBtn       = document.getElementById('copyBtn');
 
+// ── Upload events ─────────────────────────────────────────────────────
 uploadZone.addEventListener('dragover', e => {
   e.preventDefault();
   uploadZone.classList.add('drag-over');
@@ -102,6 +112,7 @@ removeBtn.addEventListener('click', () => {
 generateBtn.addEventListener('click', generatePrompt);
 copyBtn.addEventListener('click', copyResult);
 
+// ── Toggle buttons ────────────────────────────────────────────────────
 document.querySelectorAll('[data-format]').forEach(button => {
   button.addEventListener('click', () => {
     currentFormat = button.dataset.format;
@@ -120,7 +131,6 @@ document.querySelectorAll('[data-style]').forEach(button => {
   button.addEventListener('click', () => {
     currentVisualStyle = button.dataset.style;
     setActiveButton(button);
-    console.log('VISUAL STYLE:', currentVisualStyle);
   });
 });
 
@@ -130,6 +140,7 @@ function setActiveButton(button) {
   button.classList.add('active');
 }
 
+// ── Load image ────────────────────────────────────────────────────────
 function loadImage(file) {
   if (!file.type.startsWith('image/')) return showError('File harus berupa gambar.');
   if (file.size > 10 * 1024 * 1024) return showError('Ukuran file maks 10MB.');
@@ -158,17 +169,29 @@ function buildPrompt() {
   });
 }
 
+// ── Generate ──────────────────────────────────────────────────────────
 async function generatePrompt() {
   if (!imageBase64) return;
-  const credits = await getUserCredits();
 
-if (credits <= 0) {
-  return showError('Credit habis. Silakan upgrade.');
-}
+  // Cek session
+  const session = getSession();
+  if (!session?.user?.id) {
+    return showError('Kamu belum login. Silakan login dulu.');
+  }
+
+  // Cek credits
+  const credits = await getUserCredits();
+  const canUseFree = credits.free_used < 1;
+  const hasPaid    = credits.paid_credits > 0;
+
+  if (!canUseFree && !hasPaid) {
+    return showError('⚠ Credit habis. Silakan top up untuk melanjutkan.');
+  }
 
   generateBtn.disabled = true;
   generateBtn.classList.add('loading');
-  generateBtn.querySelector('.btn-text').textContent = (document.documentElement.lang === 'en' ? 'Analyzing...' : 'Menganalisis...');
+  generateBtn.querySelector('.btn-text').textContent =
+    document.documentElement.lang === 'en' ? 'Analyzing...' : 'Menganalisis...';
   resultBox.style.display = 'none';
   errorMsg.style.display = 'none';
 
@@ -178,7 +201,7 @@ if (credits <= 0) {
       headers: {
         'Content-Type': 'application/json',
         'apikey': SUPABASE_PUBLISHABLE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_PUBLISHABLE_KEY
+        'Authorization': 'Bearer ' + session.access_token
       },
       body: JSON.stringify({
         imageBase64,
@@ -188,12 +211,15 @@ if (credits <= 0) {
     });
 
     const data = await response.json();
-
-    if (!response.ok) throw new Error(data.error || 'Generate gagal');
+    if (!response.ok) throw new Error(data.error || 'Generate gagal.');
 
     rawResult = data.result || '';
-    await decreaseCredits();
+
+    // Kurangi kredit — free dulu, kalau sudah habis pakai paid
+    await decreaseCredits(canUseFree);
+
     displayResult(rawResult);
+
   } catch (err) {
     showError('Error: ' + err.message);
   } finally {
@@ -203,6 +229,7 @@ if (credits <= 0) {
   }
 }
 
+// ── Display & highlight ───────────────────────────────────────────────
 function displayResult(text) {
   resultContent.innerHTML = syntaxHighlight(text);
   resultBox.style.display = 'block';
@@ -225,9 +252,10 @@ function syntaxHighlight(text) {
   }
 }
 
+// ── Copy ──────────────────────────────────────────────────────────────
 function copyResult() {
   navigator.clipboard.writeText(rawResult).then(() => {
-    copyBtn.textContent = (document.documentElement.lang === 'en' ? '✓ Copied!' : '✓ Tersalin!');
+    copyBtn.textContent = document.documentElement.lang === 'en' ? '✓ Copied!' : '✓ Tersalin!';
     copyBtn.classList.add('copied');
     setTimeout(() => {
       copyBtn.textContent = 'Copy';
@@ -236,6 +264,7 @@ function copyResult() {
   });
 }
 
+// ── Error ─────────────────────────────────────────────────────────────
 function showError(msg) {
   errorMsg.textContent = msg;
   errorMsg.style.display = 'block';
