@@ -1,16 +1,33 @@
 // RanzAI App Logic
 let imageBase64 = null;
 let imageMime = 'image/jpeg';
-
-let currentFormat = 'json';
-let currentTargetAI = 'chatgpt';
-let currentVisualStyle = 'normal';
-
-let rawResult = '';
-
 const SUPABASE_URL = 'https://cavouyzyasnuygkuwizy.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'GANTI_DENGAN_ANON_KEY_KAMU';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_6eixKKot9VleMm2KVD4o7w_C58lRv6r';
 const GENERATE_ENDPOINT = 'https://cavouyzyasnuygkuwizy.supabase.co/functions/v1/generate-prompt';
+
+// Baca token dari URL hash setelah login Google
+(async function readHashToken() {
+  const hash = window.location.hash;
+  if (!hash.includes('access_token')) return;
+  const params = new URLSearchParams(hash.substring(1));
+  const access_token  = params.get('access_token');
+  const refresh_token = params.get('refresh_token');
+  if (!access_token) return;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        'apikey': SUPABASE_PUBLISHABLE_KEY,
+        'Authorization': `Bearer ${access_token}`
+      }
+    });
+    const user = await res.json();
+    if (user?.id) {
+      localStorage.setItem('ranzai_session', JSON.stringify({ access_token, refresh_token, user }));
+    }
+  } catch(e) {}
+  window.history.replaceState({}, '', window.location.pathname);
+})();
+
 
 // ── Session ──────────────────────────────────────────────────────────
 function getSession() {
