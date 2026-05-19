@@ -90,47 +90,43 @@ async function createUserCredit(userId, accessToken) {
 }
 
 async function registerWithEmail() {
-  const name = document.getElementById('nameInput').value.trim();
-  const email = document.getElementById('emailInput').value.trim();
+  const name     = document.getElementById('nameInput').value.trim();
+  const email    = document.getElementById('emailInput').value.trim();
   const password = document.getElementById('passwordInput').value;
-  const terms = document.getElementById('termsCheck').checked;
+  const terms    = document.getElementById('termsCheck').checked;
 
-  if (!name) return showError('Nama wajib diisi.');
+  if (!name)                          return showError('Nama wajib diisi.');
   if (!email || !email.includes('@')) return showError('Email tidak valid.');
-  if (password.length < 8) return showError('Password minimal 8 karakter.');
-  if (!terms) return showError('Setujui syarat & ketentuan dulu.');
+  if (password.length < 8)            return showError('Password minimal 8 karakter.');
+  if (!terms)                         return showError('Setujui syarat & ketentuan dulu.');
 
   setLoading('registerBtn', true, '✦ Buat Akun');
 
   try {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        data: { full_name: name }
-      })
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
+      body: JSON.stringify({ email, password, data: { full_name: name } })
     });
 
     const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error_description || data.msg || 'Pendaftaran gagal.');
-    }
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Pendaftaran gagal.');
 
     if (data.session) {
-      saveSession(data);
+      // simpan session dulu, verifikasi tersimpan
+      const ok = saveSession({ session: data.session, user: data.user });
+      if (!ok) throw new Error('Gagal menyimpan session. Coba lagi.');
+
+      // buat user_credits
       await createUserCredit(data.user.id, data.session.access_token);
+
       showSuccess('✓ Akun berhasil dibuat. Mengalihkan...');
-      setTimeout(goToApp, 1000);
+      setTimeout(goToDashboard, 800);
     } else {
-      showSuccess('✓ Akun berhasil dibuat.<br>Cek email untuk verifikasi, lalu login.');
+      // email perlu verifikasi dulu
+      showSuccess('✓ Akun berhasil dibuat.<br>Cek email untuk verifikasi, lalu <a href="login.html">Login →</a>');
     }
-  } catch (err) {
+  } catch(err) {
     showError('⚠ ' + err.message);
   } finally {
     setLoading('registerBtn', false, '✦ Buat Akun');
