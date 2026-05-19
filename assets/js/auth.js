@@ -1,114 +1,141 @@
-const SUPABASE_URL = 'https://cavouyzyasnuygkuwizy.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_6eixKKot9VleMm2KVD4o7w_C58lRv6r';
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RanzAI — Daftar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="auth-page">
 
-function showError(msg) {
-  const error = document.getElementById('errorMsg');
-  const success = document.getElementById('successMsg');
-  if (error) { error.textContent = msg; error.style.display = 'block'; }
-  if (success) success.style.display = 'none';
-}
+<div class="top-controls">
+  <button class="control-btn" data-theme-toggle>☾ Dark</button>
+</div>
+  <div class="auth-card">
+  <div class="auth-top"><span class="logo-mark">✦ RanzAI</span><a href="../index.html" class="auth-back">← Kembali</a></div>
+  <h1 class="auth-title">Daftar <span>Gratis</span></h1>
+  <p class="auth-subtitle">Buat akun · mulai generate · upgrade kapanpun</p>
+  <button class="btn-social" onclick="registerWithGoogle()"><span style="font-size:18px">G</span> Daftar dengan Google</button>
+  <div class="or-divider"><span>atau</span></div>
+  <div class="field"><label>Nama</label><input type="text" id="nameInput" placeholder="Nama kamu" autocomplete="name"></div>
+  <div class="field"><label>Email</label><input type="email" id="emailInput" placeholder="kamu@email.com" autocomplete="email"></div>
+  <div class="field"><label>Password</label><input type="password" id="passwordInput" placeholder="Min. 8 karakter" autocomplete="new-password" oninput="checkStrength(this.value)"><div class="strength-bar"><div class="strength-seg" id="seg1"></div><div class="strength-seg" id="seg2"></div><div class="strength-seg" id="seg3"></div><div class="strength-seg" id="seg4"></div></div><div class="strength-label" id="strengthLabel"></div></div>
+  <div class="terms"><input type="checkbox" id="termsCheck"><label for="termsCheck">Saya setuju dengan <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a> RanzAI.</label></div>
+  <button class="btn-submit" id="registerBtn" onclick="registerWithEmail()"><div class="spinner"></div><span class="btn-text">✦ Buat Akun</span></button>
+  <div class="error-msg" id="errorMsg"></div><div class="success-msg" id="successMsg"></div>
+  <div class="free-badge"><span class="free-badge-icon">🎁</span><div class="free-badge-text"><strong>Free Plan — Langsung aktif</strong> 1 generate gratis. Upgrade untuk lanjut generate.</div></div>
+  <div class="card-footer">Sudah punya akun? <a href="login.html">Masuk →</a></div>
+</div>
+<script src="../assets/js/auth.js"></script>
+<script>
+function checkStrength(val) {
+  const segs = [1, 2, 3, 4].map(i => document.getElementById('seg' + i));
+  const label = document.getElementById('strengthLabel');
 
-function showSuccess(msg) {
-  const success = document.getElementById('successMsg');
-  const error = document.getElementById('errorMsg');
-  if (success) { success.innerHTML = msg; success.style.display = 'block'; }
-  if (error) error.style.display = 'none';
-}
+  segs.forEach(s => s.className = 'strength-seg');
 
-function setLoading(buttonId, on, idleText) {
-  const btn = document.getElementById(buttonId);
-  if (!btn) return;
-  btn.disabled = on;
-  btn.classList.toggle('loading', on);
-  const text = btn.querySelector('.btn-text');
-  if (text) text.textContent = on ? 'Memproses...' : idleText;
-}
+  if (!val) {
+    label.textContent = '';
+    return;
+  }
 
-function registerWithGoogle() {
-  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent('https://prompt.ranz-ai.com/dashboard/index.html')}`;
-}
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
 
-function loginWithGoogle() {
-  registerWithGoogle();
-}
-
-function saveSession(data) {
-  // support both {session, user} and flat token response
-  const session = data.session || data;
-  const user    = data.user || session.user;
-
-  if (!session?.access_token) return false;
-
-  const payload = {
-    access_token:  session.access_token,
-    refresh_token: session.refresh_token || '',
-    user:          user
-  };
-
-  try {
-    localStorage.setItem('ranzai_session', JSON.stringify(payload));
-    // verify it was actually written
-    const check = localStorage.getItem('ranzai_session');
-    return !!check;
-  } catch(e) {
-    return false;
+  if (score === 1) {
+    segs[0].classList.add('weak');
+    label.textContent = 'Lemah';
+    label.style.color = '#ff4d4d';
+  } else if (score === 2) {
+    segs[0].classList.add('medium');
+    segs[1].classList.add('medium');
+    label.textContent = 'Cukup';
+    label.style.color = 'var(--accent)';
+  } else if (score === 3) {
+    segs[0].classList.add('strong');
+    segs[1].classList.add('strong');
+    segs[2].classList.add('strong');
+    label.textContent = 'Kuat';
+    label.style.color = 'var(--success)';
+  } else if (score === 4) {
+    segs.forEach(s => s.classList.add('strong'));
+    label.textContent = 'Sangat Kuat';
+    label.style.color = 'var(--success)';
   }
 }
 
-function goToDashboard() {
-  // absolute path supaya tidak salah dari mana pun
-  const base = window.location.origin;
-  // cari root project — kalau ada /auth/ di path, naik 1 level
-  const path = window.location.pathname.includes('/auth/')
-    ? window.location.pathname.replace(/\/auth\/.*$/, '')
-    : '';
-  window.location.replace(base + path + '/dashboard/index.html');
+async function createUserCredit(userId, accessToken) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/user_credits`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON,
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({
+      user_id: userId,
+      credits: 1,
+      plan: 'free'
+    })
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message || data.msg || 'Gagal membuat credit user.');
+  }
 }
 
-// alias lama tetap jalan
-function goToApp() { goToDashboard(); }
+async function registerWithEmail() {
+  const name     = document.getElementById('nameInput').value.trim();
+  const email    = document.getElementById('emailInput').value.trim();
+  const password = document.getElementById('passwordInput').value;
+  const terms    = document.getElementById('termsCheck').checked;
 
-function initTheme() {
-  const saved = localStorage.getItem('ranzai_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  const btn = document.querySelector('[data-theme-toggle]');
-  if (btn) btn.textContent = saved === 'light' ? '☀ Light' : '☾ Dark';
-}
+  if (!name)                          return showError('Nama wajib diisi.');
+  if (!email || !email.includes('@')) return showError('Email tidak valid.');
+  if (password.length < 8)            return showError('Password minimal 8 karakter.');
+  if (!terms)                         return showError('Setujui syarat & ketentuan dulu.');
 
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('ranzai_theme', next);
-  const btn = document.querySelector('[data-theme-toggle]');
-  if (btn) btn.textContent = next === 'light' ? '☀ Light' : '☾ Dark';
-}
+  setLoading('registerBtn', true, '✦ Buat Akun');
 
-window.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  const themeBtn = document.querySelector('[data-theme-toggle]');
-  if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
-});
-
-// Baca token dari URL hash (setelah login Google)
-(async function readHashToken() {
-  const hash = window.location.hash;
-  if (!hash.includes('access_token')) return;
-  const params = new URLSearchParams(hash.substring(1));
-  const access_token  = params.get('access_token');
-  const refresh_token = params.get('refresh_token');
-  if (!access_token) return;
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: {
-        'apikey': SUPABASE_ANON,
-        'Authorization': `Bearer ${access_token}`
-      }
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON },
+      body: JSON.stringify({ email, password, data: { full_name: name } })
     });
-    const user = await res.json();
-    if (user?.id) {
-      localStorage.setItem('ranzai_session', JSON.stringify({ access_token, refresh_token, user }));
-      window.history.replaceState({}, '', window.location.pathname);
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Pendaftaran gagal.');
+
+    if (data.session) {
+      // simpan session dulu, verifikasi tersimpan
+      const ok = saveSession({ session: data.session, user: data.user });
+      if (!ok) throw new Error('Gagal menyimpan session. Coba lagi.');
+
+      // buat user_credits
+      await createUserCredit(data.user.id, data.session.access_token);
+
+      showSuccess('✓ Akun berhasil dibuat. Mengalihkan...');
+      setTimeout(goToDashboard, 800);
+    } else {
+      // email perlu verifikasi dulu
+      showSuccess('✓ Akun berhasil dibuat.<br>Cek email untuk verifikasi, lalu <a href="login.html">Login →</a>');
     }
-  } catch(e) {}
-})();
+  } catch(err) {
+    showError('⚠ ' + err.message);
+  } finally {
+    setLoading('registerBtn', false, '✦ Buat Akun');
+  }
+}
+
+document.getElementById('passwordInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') registerWithEmail();
+});
+</script>
+</body>
+</html>
