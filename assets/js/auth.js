@@ -43,7 +43,7 @@ function saveSession(data) {
 }
 
 function goToApp() {
-  window.location.href = '../app.html';
+  window.location.href = '../dashboard/index.html';
 }
 
 function initTheme() {
