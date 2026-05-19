@@ -1247,8 +1247,15 @@ body.dash-body {
 <script>
 /* ── Session Guard — redirect kalau belum login ── */
 (function() {
-  const raw = localStorage.getItem('ranzai_session');
-  if (!raw) { window.location.href = '../auth/login.html'; }
+  try {
+    const raw = localStorage.getItem('ranzai_session');
+    if (!raw) throw new Error('no session');
+    const session = JSON.parse(raw);
+    if (!session?.access_token || !session?.user?.id) throw new Error('invalid session');
+    // session valid, lanjut
+  } catch(e) {
+    window.location.replace('../auth/login.html');
+  }
 })();
 const SUPABASE_URL = 'https://cavouyzyasnuygkuwizy.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_6eixKKot9VleMm2KVD4o7w_C58lRv6r';
