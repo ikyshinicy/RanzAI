@@ -100,6 +100,8 @@ const removeBtn     = document.getElementById('removeBtn');
 const copyBtn       = document.getElementById('copyBtn');
 
 // ── Upload events ─────────────────────────────────────────────────────
+uploadZone.addEventListener('click', () => fileInput.click());
+
 uploadZone.addEventListener('dragover', e => {
   e.preventDefault();
   uploadZone.classList.add('drag-over');
